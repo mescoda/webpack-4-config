@@ -7,6 +7,9 @@ const PORT = 8300;
 module.exports = {
     contentBase: pathConst.DIST,
 
+    // stay the same with output.publicPath
+    publicPath: pathConst.STATIC_FILE_URL_PREFIX,
+
     // disable gzip
     compress: false,
 
@@ -16,9 +19,9 @@ module.exports = {
     // local dev may use specific domain with hosts config
     disableHostCheck: true,
 
-    // support browserhistory
+    // when using browser history or hash router, help visiting without publicPath
     historyApiFallback: {
-        index: '/'
+        index: pathConst.STATIC_FILE_URL_PREFIX
     },
 
     hot: true,

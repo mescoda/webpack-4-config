@@ -45,8 +45,7 @@ module.exports = env => {
             path: pathConst.DIST,
 
             // static file prefix
-            // CONFIG
-            publicPath: '/',
+            publicPath: pathConst.STATIC_FILE_URL_PREFIX,
 
             // in output html, js files' path will be output.publicPath + output.filename
             filename: pathConst.STATIC_PATH_NAME + '/' + (
