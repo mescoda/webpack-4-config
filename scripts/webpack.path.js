@@ -10,7 +10,7 @@ const getPath = relativePathInProject => {
 
 // CONFIG
 module.exports = {
-    STATIC_PATH_NAME: 'static/',
+    STATIC_PATH_NAME: 'static',
     PROJECT: getPath('./'),
     SOURCE: getPath('./src'),
     INDEX_JS: getPath('./src/index'),

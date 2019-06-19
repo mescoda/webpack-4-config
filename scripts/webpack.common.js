@@ -49,10 +49,10 @@ module.exports = env => {
             publicPath: '/',
 
             // in output html, js files' path will be output.publicPath + output.filename
-            filename: pathConst.STATIC_PATH_NAME + (
+            filename: pathConst.STATIC_PATH_NAME + '/' + (
                 isDev ? '[name].js' : '[name].[hash:8].js'
             ),
-            chunkFilename: pathConst.STATIC_PATH_NAME + (
+            chunkFilename: pathConst.STATIC_PATH_NAME + '/' + (
                 isDev ? '[name].chunk.js' : '[name].[hash:8].chunk.js'
             )
         },
@@ -106,10 +106,10 @@ module.exports = env => {
             new ModuleNotFoundPlugin(pathConst.PROJECT),
 
             new MiniCssExtractPlugin({
-                filename: pathConst.STATIC_PATH_NAME + (
+                filename: pathConst.STATIC_PATH_NAME + '/' + (
                     isDev ? '[name].css' : '[name].[hash:8].css'
                 ),
-                chunkFilename: pathConst.STATIC_PATH_NAME + (
+                chunkFilename: pathConst.STATIC_PATH_NAME + '/' + (
                     isDev ? '[name].chunk.css' : '[name].[hash:8].chunk.css'
                 )
             }),
