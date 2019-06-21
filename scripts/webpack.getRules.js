@@ -37,6 +37,21 @@ const getStyleLoaders = (isDev, cssLoaderOptions = {}, preLoader) => {
                                 // add prefixes only for final and IE versions of specification
                                 flexbox: 'no-2009'
                             }
+                        }),
+
+                        require('postcss-px-to-viewport')({
+                            unitToConvert: 'px',
+                            viewportWidth: 375,
+                            unitPrecision: 5,
+                            propList: ['*'],
+                            viewportUnit: 'vw',
+                            fontViewportUnit: 'vw',
+                            selectorBlackList: [],
+                            minPixelValue: 1,
+                            mediaQuery: false,
+                            replace: true,
+                            exclude: [],
+                            landscape: false
                         })
                     ];
                 }
