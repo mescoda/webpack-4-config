@@ -270,7 +270,18 @@ module.exports = isDev => {
             }
         },
 
-        // TODO: eslint
+        // run linter before Babel processes the JS
+        {
+            test: /\.(js|mjs|jsx)$/,
+            enforce: 'pre',
+            include: pathConst.SOURCE,
+            use: {
+                loader: 'eslint-loader',
+                options: {
+                    eslintPath: require.resolve('eslint')
+                }
+            }
+        },
 
         {
             // use `oneOf` to traverse all following loaders until one matches
