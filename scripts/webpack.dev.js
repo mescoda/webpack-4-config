@@ -22,6 +22,12 @@ module.exports = (env = {}) => {
 
         devtool: 'cheap-module-eval-source-map',
 
+        resolve: {
+            alias: {
+              'react-dom': '@hot-loader/react-dom'
+            }
+        },
+
         output: {
             // include comments in bundles with information about the contained modules
             pathinfo: true
