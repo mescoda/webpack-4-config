@@ -37,25 +37,21 @@ module.exports = (env = {}) => {
                             comments: false
                         }
                     }
+                }),
+                new OptimizeCSSAssetsPlugin({
+                    cssProcessorPluginOptions: {
+                        preset: [
+                            'default',
+                            {
+                                discardComments: {
+                                    removeAll: true
+                                }
+                            }
+                        ]
+                    }
                 })
             ]
-        },
-
-        plugins: [
-            new OptimizeCSSAssetsPlugin({
-                cssProcessorPluginOptions: {
-                    preset: [
-                        'default',
-                        {
-                            discardComments: {
-                                removeAll: true
-                            }
-                        }
-                    ]
-                }
-            })
-        ]
-
+        }
     });
 
 };

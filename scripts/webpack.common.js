@@ -11,6 +11,8 @@ const pathConst = require('./webpack.path');
 
 const getRules = require('./webpack.getRules');
 
+const getEnv = require('./webpack.env');
+
 // use process.env instead of webpack env, to make browserslist environments in package.json work
 const NODE_ENV = process.env.NODE_ENV;
 
@@ -24,6 +26,7 @@ module.exports = env => {
 
         entry: {
             app: [
+                ...(isDev ? ['react-hot-loader/patch'] : []),
                 pathConst.INDEX_JS
             ]
         },
@@ -63,7 +66,11 @@ module.exports = env => {
 
             // keep the runtime chunk seperated to enable long term caching
             // https://twitter.com/wSokra/status/969679223278505985
-            runtimeChunk: true
+            // replace default ~ with -
+            // https://github.com/facebook/create-react-app/issues/5358
+            runtimeChunk: {
+                name: entrypoint => `runtime-${entrypoint.name}`
+            }
         },
 
         module: {
@@ -73,11 +80,7 @@ module.exports = env => {
         plugins: [
 
             // besides NODE_ENV in scripts, also need DefinePlugin to create global constants into source code
-            new webpack.DefinePlugin({
-                'process.env': {
-                    'NODE_ENV': JSON.stringify(NODE_ENV)
-                }
-            }),
+            new webpack.DefinePlugin(getEnv().stringified),
 
             new HtmlWebpackPlugin({
                 template: pathConst.INDEX_HTML,

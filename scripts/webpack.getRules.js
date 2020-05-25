@@ -99,17 +99,20 @@ const getBabelConfig = isDev => {
             [
                 '@babel/preset-env',
                 {
-                    // with debug on, webpack will log some 「[.js] `import '@babel/polyfill'` was not found」
+                    // With debug enabled, Webpack would log lots of "[.js] Import of core-js was not found"
                     // which are not errors
-                    debug: isDev,
+                    // debug: isDev,
 
-                    // replace @babel/polyfill with individual requires for @babel/polyfill based on browserslist
+                    // replace import core-js with individual polyfill based on browserslist
                     useBuiltIns: 'entry',
+
+                    corejs: 3,
 
                     // do not transform modules to CJS
                     modules: false,
 
                     // exclude transforms that make all code slower
+                    // typeof also makes file size much larger
                     exclude: ['transform-typeof-symbol']
                 }
             ],
@@ -183,15 +186,25 @@ const getBabelConfig = isDev => {
                 {
                     corejs: false,
                     helpers: true,
+
+                    // By default, babel assumes babel/runtime version 7.0.0
+                    // explicitly declare for more advanced features
+                    version: require('@babel/runtime/package.json').version,
+
                     regenerator: true,
                     useESModules: false,
 
                     // undocumented option that lets us encapsulate our runtime, ensuring the correct version is used
+                    // eslint-disable-next-line
                     // https://github.com/babel/babel/blob/090c364a90fe73d36a30707fc612ce037bdbbb24/packages/babel-plugin-transform-runtime/src/index.js#L35-L42
                     absoluteRuntime: path.dirname(
                         require.resolve('@babel/runtime/package.json')
                     )
                 }
+            ],
+
+            [
+                'add-react-displayname'
             ],
 
             // transform dynamic import to require in dev to save build time
@@ -206,8 +219,8 @@ const getBabelConfig = isDev => {
         // cache results in ./node_modules/.cache/babel-loader/
         cacheDirectory: true,
 
-        // disable gzip in dev to save time
-        cacheCompression: !isDev
+        // disable because https://github.com/facebook/create-react-app/issues/6846
+        cacheCompression: false
     };
 };
 
@@ -217,6 +230,8 @@ const getBabelConfigForDep = isDev => {
             [
                 '@babel/preset-env',
                 {
+                    // Enable in dev to check targets and plugins used by Babel
+                    // as useBuiltIns is false, no polyfill warning will be output.
                     debug: isDev,
 
                     useBuiltIns: false,
@@ -237,10 +252,16 @@ const getBabelConfigForDep = isDev => {
                 {
                     corejs: false,
                     helpers: true,
+
+                    // By default, babel assumes babel/runtime version 7.0.0
+                    // explicitly declare for more advanced features
+                    version: require('@babel/runtime/package.json').version,
+
                     regenerator: true,
                     useESModules: false,
 
                     // undocumented option that lets us encapsulate our runtime, ensuring the correct version is used
+                    // eslint-disable-next-line
                     // https://github.com/babel/babel/blob/090c364a90fe73d36a30707fc612ce037bdbbb24/packages/babel-plugin-transform-runtime/src/index.js#L35-L42
                     absoluteRuntime: path.dirname(
                         require.resolve('@babel/runtime/package.json')
@@ -249,13 +270,17 @@ const getBabelConfigForDep = isDev => {
             ]
         ],
         cacheDirectory: true,
-        cacheCompression: !isDev,
 
-        // if an error happens in a package, it's possible to be
-        // because it was compiled. Thus, we don't want the browser
-        // debugger to show the original code. Instead, the code
-        // being evaluated would be much more helpful.
-        sourceMaps: false
+        // disable because https://github.com/facebook/create-react-app/issues/6846
+        cacheCompression: false,
+
+        sourceType: 'unambiguous',
+
+        // Babel sourcemaps are needed for debugging into node_modules
+        // code.  Without the options below, debuggers like VSCode
+        // show incorrect code and set breakpoints on the wrong lines.
+        sourceMaps: isDev,
+        inputSourceMap: isDev
     };
 };
 
@@ -271,7 +296,7 @@ module.exports = isDev => {
         },
 
         // run linter before Babel processes the JS
-        {
+        /*{
             test: /\.(js|mjs|jsx)$/,
             enforce: 'pre',
             include: pathConst.SOURCE,
@@ -281,7 +306,7 @@ module.exports = isDev => {
                     eslintPath: require.resolve('eslint')
                 }
             }
-        },
+        },*/
 
         {
             // use `oneOf` to traverse all following loaders until one matches
@@ -318,8 +343,9 @@ module.exports = isDev => {
                         importLoaders: 1,
 
                         // css modules
-                        modules: true,
-                        getLocalIdent: getLocalIdentFn(isDev)
+                        modules: {
+                            getLocalIdent: getLocalIdentFn(isDev)
+                        }
                     })
                 },
                 {
@@ -333,7 +359,9 @@ module.exports = isDev => {
                         {
                             loader: 'less-loader',
                             options: {
-                                sourceMap: isDev
+                                sourceMap: isDev,
+                                // support @import 'src/FILENAME.less'
+                                paths: [path.PROJECT]
                             }
                         }
                     )
@@ -346,20 +374,27 @@ module.exports = isDev => {
                             importLoaders: 2,
 
                             // css modules
-                            modules: true,
-                            getLocalIdent: getLocalIdentFn(isDev)
+                            modules: {
+                                getLocalIdent: getLocalIdentFn(isDev)
+                            }
                         },
                         {
                             loader: 'less-loader',
                             options: {
-                                sourceMap: isDev
+                                sourceMap: isDev,
+                                // support @import 'src/FILENAME.less'
+                                paths: [path.PROJECT]
                             }
                         }
                     )
                 },
                 {
-                    test: /\.js$/,
-                    include: pathConst.SOURCE,
+                    test: /\.(js|mjs|jsx)$/,
+                    include: [
+                        pathConst.SOURCE,
+                        // using babel to replace `import 'core-js/stable'` in react-app-polyfill
+                        /react-app-polyfill/
+                    ],
                     use: [
                         {
                             loader: 'babel-loader',
@@ -368,17 +403,36 @@ module.exports = isDev => {
                     ]
                 },
 
-                // do not think it's necessary
-                /*{
+                // Using babel process JS inside node_modules
+                // as those may not be converted into compatible code in desired browsers.
+                {
                     test: /\.(js|mjs)$/,
-                    exclude: /@babel(?:\/|\\{1,2})runtime/,
+                    include: [
+                        pathConst.NODE_MODULES
+                    ],
+                    exclude: [
+                        /@babel(?:\/|\\{1,2})runtime/,
+                        /react-app-polyfill/
+                    ],
                     use: [
                         {
                             loader: 'babel-loader',
                             options: getBabelConfigForDep(isDev)
                         }
                     ]
-                },*/
+                },
+
+                {
+                    test: /\.(txt|md)$/i,
+                    include: pathConst.SOURCE,
+                    use: {
+                        loader: 'raw-loader',
+                        options: {
+                            esModule: false
+                        }
+                    }
+                },
+
                 {
                     exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
                     use: {
