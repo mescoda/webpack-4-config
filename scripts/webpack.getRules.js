@@ -361,7 +361,7 @@ module.exports = isDev => {
                             options: {
                                 sourceMap: isDev,
                                 // support @import 'src/FILENAME.less'
-                                paths: [path.PROJECT]
+                                paths: [pathConst.PROJECT]
                             }
                         }
                     )
@@ -383,7 +383,7 @@ module.exports = isDev => {
                             options: {
                                 sourceMap: isDev,
                                 // support @import 'src/FILENAME.less'
-                                paths: [path.PROJECT]
+                                paths: [pathConst.PROJECT]
                             }
                         }
                     )
