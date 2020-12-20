@@ -319,8 +319,8 @@ module.exports = isDev => {
                         options: {
                             outputPath: pathConst.STATIC_PATH_NAME,
 
-                            // remove `src` from path
-                            regExp: /(\/src)([^.]+)/,
+                            // remove `src`|`node_modules` from path
+                            regExp: /(\/src|\/node_modules)([^.]+)/,
                             name(file) {
                                 if (isDev) {
                                     return '[2].[ext]';
@@ -446,8 +446,8 @@ module.exports = isDev => {
                         options: {
                             outputPath: pathConst.STATIC_PATH_NAME,
 
-                            // remove `src` from path
-                            regExp: /(\/src)([^.]+)/,
+                            // remove `src`|`node_modules` from path
+                            regExp: /(\/src|\/node_modules)([^.]+)/,
                             name(file) {
                                 if (isDev) {
                                     return '[2].[ext]';
