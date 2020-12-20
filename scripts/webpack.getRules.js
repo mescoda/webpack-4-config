@@ -335,7 +335,10 @@ module.exports = isDev => {
                     exclude: /\.module\.css$/,
                     use: getStyleLoaders(isDev, {
                         importLoaders: 1
-                    })
+                    }),
+                    // Import css even if package claims to have no side effects.
+                    // https://github.com/webpack/webpack/issues/6571
+                    sideEffects: true
                 },
                 {
                     test: /\.module\.css$/,
@@ -364,7 +367,10 @@ module.exports = isDev => {
                                 paths: [pathConst.PROJECT]
                             }
                         }
-                    )
+                    ),
+                    // Import css even if package claims to have no side effects.
+                    // https://github.com/webpack/webpack/issues/6571
+                    sideEffects: true
                 },
                 {
                     test: /\.module\.less$/,
