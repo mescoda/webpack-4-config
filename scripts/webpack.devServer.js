@@ -4,6 +4,19 @@ const pathConst = require('./webpack.path');
 // CONFIG
 const PORT = 8300;
 
+const rdProxy = {
+    '/api': {
+        target: 'http://example.com/api',
+        pathRewrite: {
+            '^/api': ''
+        },
+        onProxyReq(proxyReq, req, res) {
+            proxyReq.setHeader('Connection', 'keep-alive');
+            proxyReq.setHeader('host', 'example.com');
+        }
+    }
+};
+
 module.exports = {
     contentBase: pathConst.DIST,
 
@@ -27,7 +40,7 @@ module.exports = {
     hot: true,
 
     proxy: {
-
+        ...rdProxy
     }
 
 };

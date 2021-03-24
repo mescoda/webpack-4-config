@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const pathConst = require('./webpack.path');
 
@@ -37,6 +38,7 @@ module.exports = env => {
             },
             // CONFIG
             mainFiles: ['loadable', 'index', 'UI'],
+            extensions: ['.ts', '.tsx', '.js', '.json'],
             plugins: [
                 // ensure relative imports from app's source directories don't reach outside of it
                 // prevents users from importing files from outside of src/
@@ -118,7 +120,15 @@ module.exports = env => {
 
             // remove moment.js locale
             // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
-            new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+            new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+
+            new ForkTsCheckerWebpackPlugin({
+                async: isDev,
+                typescript: {
+                    configFile: pathConst.TSCONFIG
+                }
+            })
+
         ],
 
         // some libraries import Node modules but don't use them in the browser
@@ -128,7 +138,7 @@ module.exports = env => {
             fs: 'empty',
             net: 'empty',
             tls: 'empty',
-            // eslint-disable-next-line fecs-camelcase
+            // eslint-disable-next-line
             child_process: 'empty'
         }
     };

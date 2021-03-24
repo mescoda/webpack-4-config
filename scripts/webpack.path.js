@@ -20,5 +20,6 @@ module.exports = {
     DIST: getPath('./dist'),
     INDEX_HTML: getPath('./public/index.html'),
     NODE_MODULES: getPath('./node_modules'),
-    PACKAGE_JSON: getPath('./package.json')
+    PACKAGE_JSON: getPath('./package.json'),
+    TSCONFIG: getPath('./tsconfig.json')
 };

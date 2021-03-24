@@ -7,7 +7,7 @@ const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 
-const merge = require('webpack-merge');
+const {merge} = require('webpack-merge');
 const commonConfig = require('./webpack.common.js');
 const devServerConfig = require('./webpack.devServer.js');
 
@@ -34,6 +34,7 @@ module.exports = (env = {}) => {
         },
 
         plugins: [
+
             // new BundleAnalyzerPlugin(),
 
             // prevent OSX path insensitive typo, whick will lead into error when compile on linux

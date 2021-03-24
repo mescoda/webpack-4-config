@@ -23,22 +23,21 @@ const getStyleLoaders = (isDev, cssLoaderOptions = {}, preLoader) => {
         {
             loader: 'postcss-loader',
             options: {
-                // necessary for external CSS imports to work
-                // https://github.com/facebook/create-react-app/issues/2677
-                // https://github.com/postcss/postcss-loader#plugins
-                ident: 'postcss',
-                plugins: () => {
-                    return [
-                        require('postcss-flexbugs-fixes'),
+                postcssOptions: {
+                    plugins: [
+                        'postcss-flexbugs-fixes',
 
                         // default stage:2 https://preset-env.cssdb.org/features#stage-2
-                        require('postcss-preset-env')({
-                            autoprefixer: {
-                                // add prefixes only for final and IE versions of specification
-                                flexbox: 'no-2009'
+                        [
+                            'postcss-preset-env',
+                            {
+                                autoprefixer: {
+                                    // add prefixes only for final and IE versions of specification
+                                    flexbox: 'no-2009'
+                                }
                             }
-                        })
-                    ];
+                        ]
+                    ]
                 }
             }
         }
@@ -94,6 +93,7 @@ const getLocalIdentFn = isDev => {
 
 
 const getBabelConfig = isDev => {
+    // TODO support npm run test
     return {
         presets: [
             [
@@ -127,6 +127,9 @@ const getBabelConfig = isDev => {
                     // use native built-in instead of trying to polyfill
                     useBuiltIns: true
                 }
+            ],
+            [
+                '@babel/preset-typescript'
             ]
         ],
         plugins: [
@@ -164,16 +167,18 @@ const getBabelConfig = isDev => {
             ],
 
             // antd dynamic import
+            /*
             [
                 'babel-plugin-import',
                 {
-                    'libraryName': 'antd',
-                    'libraryDirectory': 'es',
+                    libraryName: 'antd',
+                    libraryDirectory: 'es',
 
                     // `style: true` will load less file
-                    'style': 'css'
+                    style: 'css'
                 }
             ],
+            */
 
             // support dynamic import()
             // https://reacttraining.com/react-router/web/guides/code-splitting
@@ -225,6 +230,7 @@ const getBabelConfig = isDev => {
 };
 
 const getBabelConfigForDep = isDev => {
+    // TODO support npm run test
     return {
         presets: [
             [
@@ -330,6 +336,7 @@ module.exports = isDev => {
                         }
                     }
                 },
+
                 {
                     test: /\.css$/,
                     exclude: /\.module\.css$/,
@@ -340,6 +347,7 @@ module.exports = isDev => {
                     // https://github.com/webpack/webpack/issues/6571
                     sideEffects: true
                 },
+
                 {
                     test: /\.module\.css$/,
                     use: getStyleLoaders(isDev, {
@@ -351,6 +359,7 @@ module.exports = isDev => {
                         }
                     })
                 },
+
                 {
                     test: /\.less$/,
                     exclude: /\.module\.less$/,
@@ -363,8 +372,10 @@ module.exports = isDev => {
                             loader: 'less-loader',
                             options: {
                                 sourceMap: isDev,
-                                // support @import 'src/FILENAME.less'
-                                paths: [pathConst.PROJECT]
+                                lessOptions: {
+                                    // support @import 'src/FILENAME.less'
+                                    paths: [pathConst.PROJECT]
+                                }
                             }
                         }
                     ),
@@ -372,6 +383,7 @@ module.exports = isDev => {
                     // https://github.com/webpack/webpack/issues/6571
                     sideEffects: true
                 },
+
                 {
                     test: /\.module\.less$/,
                     use: getStyleLoaders(
@@ -388,14 +400,17 @@ module.exports = isDev => {
                             loader: 'less-loader',
                             options: {
                                 sourceMap: isDev,
-                                // support @import 'src/FILENAME.less'
-                                paths: [pathConst.PROJECT]
+                                lessOptions: {
+                                    // support @import 'src/FILENAME.less'
+                                    paths: [pathConst.PROJECT]
+                                }
                             }
                         }
                     )
                 },
+
                 {
-                    test: /\.(js|mjs|jsx)$/,
+                    test: /\.(js|mjs|jsx|ts|tsx)$/,
                     include: [
                         pathConst.SOURCE,
                         // using babel to replace `import 'core-js/stable'` in react-app-polyfill
